@@ -12,7 +12,7 @@ using PickupOrderSystem.Infrastructure.Data;
 namespace PickupOrderSystem.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260611051116_InitialSchema")]
+    [Migration("20260611222438_InitialSchema")]
     partial class InitialSchema
     {
         /// <inheritdoc />
@@ -77,20 +77,53 @@ namespace PickupOrderSystem.Migrations
 
                     b.HasIndex("DriverId");
 
-                    b.HasIndex("PickupRequestId");
+                    b.HasIndex("PickupRequestId")
+                        .HasDatabaseName("IX_assignments_solicitacao_id");
 
                     b.HasIndex("VehicleId");
+
+                    b.HasIndex(new[] { "PickupRequestId" }, "idx_assignment_ativa_unica")
+                        .IsUnique()
+                        .HasFilter("data_conclusao_real IS NULL");
 
                     b.ToTable("assignments", (string)null);
                 });
 
-            modelBuilder.Entity("PickupOrderSystem.Domain.Entities.Driver", b =>
+            modelBuilder.Entity("PickupOrderSystem.Domain.Entities.ClientProfile", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
-                        .HasColumnName("id")
-                        .HasDefaultValueSql("gen_random_uuid()");
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("endereco");
+
+                    b.Property<string>("Cnpj")
+                        .IsRequired()
+                        .HasMaxLength(18)
+                        .HasColumnType("character varying(18)")
+                        .HasColumnName("cnpj");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("telefone");
+
+                    b.HasKey("UserId");
+
+                    b.HasIndex("Cnpj")
+                        .IsUnique();
+
+                    b.ToTable("client_profiles", (string)null);
+                });
+
+            modelBuilder.Entity("PickupOrderSystem.Domain.Entities.DriverProfile", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
 
                     b.Property<bool>("Active")
                         .ValueGeneratedOnAdd()
@@ -108,38 +141,12 @@ namespace PickupOrderSystem.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("cnh");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("email");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("nome");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("telefone");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id");
+                    b.HasKey("UserId");
 
                     b.HasIndex("Cnh")
                         .IsUnique();
 
-                    b.ToTable("drivers", (string)null);
+                    b.ToTable("driver_profiles", (string)null);
                 });
 
             modelBuilder.Entity("PickupOrderSystem.Domain.Entities.Occurrence", b =>
@@ -169,11 +176,15 @@ namespace PickupOrderSystem.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("solicitacao_id");
 
-                    b.Property<string>("RegisteredBy")
+                    b.Property<Guid>("RegisteredById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("usuario_id");
+
+                    b.Property<string>("RegisteredByNameSnapshot")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
-                        .HasColumnName("usuario_id");
+                        .HasColumnName("usuario_nome_snapshot");
 
                     b.Property<string>("ResolutionNotes")
                         .HasColumnType("text")
@@ -199,6 +210,8 @@ namespace PickupOrderSystem.Migrations
                     b.HasIndex("OccurrenceDate");
 
                     b.HasIndex("PickupRequestId");
+
+                    b.HasIndex("RegisteredById");
 
                     b.HasIndex("Resolved");
 
@@ -313,16 +326,6 @@ namespace PickupOrderSystem.Migrations
                         .HasDefaultValue(true)
                         .HasColumnName("ativo");
 
-                    b.Property<string>("Address")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("endereco");
-
-                    b.Property<string>("Cnpj")
-                        .HasMaxLength(18)
-                        .HasColumnType("character varying(18)")
-                        .HasColumnName("cnpj");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -344,15 +347,10 @@ namespace PickupOrderSystem.Migrations
                         .HasColumnType("text")
                         .HasColumnName("senha_hash");
 
-                    b.Property<string>("Phone")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("telefone");
-
-                    b.Property<string>("Type")
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("tipo");
+                        .HasColumnName("role");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -362,14 +360,10 @@ namespace PickupOrderSystem.Migrations
 
                     b.HasIndex("Active");
 
-                    b.HasIndex("Cnpj")
-                        .IsUnique()
-                        .HasFilter("cnpj IS NOT NULL");
-
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.HasIndex("Type");
+                    b.HasIndex("Role");
 
                     b.ToTable("users", (string)null);
                 });
@@ -436,7 +430,7 @@ namespace PickupOrderSystem.Migrations
 
             modelBuilder.Entity("PickupOrderSystem.Domain.Entities.Assignment", b =>
                 {
-                    b.HasOne("PickupOrderSystem.Domain.Entities.Driver", "Driver")
+                    b.HasOne("PickupOrderSystem.Domain.Entities.User", "Driver")
                         .WithMany()
                         .HasForeignKey("DriverId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -461,6 +455,28 @@ namespace PickupOrderSystem.Migrations
                     b.Navigation("Vehicle");
                 });
 
+            modelBuilder.Entity("PickupOrderSystem.Domain.Entities.ClientProfile", b =>
+                {
+                    b.HasOne("PickupOrderSystem.Domain.Entities.User", "User")
+                        .WithOne("ClientProfile")
+                        .HasForeignKey("PickupOrderSystem.Domain.Entities.ClientProfile", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("PickupOrderSystem.Domain.Entities.DriverProfile", b =>
+                {
+                    b.HasOne("PickupOrderSystem.Domain.Entities.User", "User")
+                        .WithOne("DriverProfile")
+                        .HasForeignKey("PickupOrderSystem.Domain.Entities.DriverProfile", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("PickupOrderSystem.Domain.Entities.Occurrence", b =>
                 {
                     b.HasOne("PickupOrderSystem.Domain.Entities.PickupRequest", "PickupRequest")
@@ -469,7 +485,15 @@ namespace PickupOrderSystem.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("PickupOrderSystem.Domain.Entities.User", "RegisteredBy")
+                        .WithMany()
+                        .HasForeignKey("RegisteredById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("PickupRequest");
+
+                    b.Navigation("RegisteredBy");
                 });
 
             modelBuilder.Entity("PickupOrderSystem.Domain.Entities.PickupRequest", b =>
@@ -488,6 +512,13 @@ namespace PickupOrderSystem.Migrations
                     b.Navigation("Assignments");
 
                     b.Navigation("Occurrences");
+                });
+
+            modelBuilder.Entity("PickupOrderSystem.Domain.Entities.User", b =>
+                {
+                    b.Navigation("ClientProfile");
+
+                    b.Navigation("DriverProfile");
                 });
 #pragma warning restore 612, 618
         }
