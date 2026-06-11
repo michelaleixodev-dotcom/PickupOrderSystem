@@ -6,6 +6,11 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=PickupOrderDb;Username=pickup_user;Password=pickup_pass123!
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER:-PickupOrderSystem}
+      - Jwt__Audience=${JWT_AUDIENCE:-PickupOrderSystem}
+    env_file:
+      - .env
     depends_on:
       db:
         condition: service_healthy

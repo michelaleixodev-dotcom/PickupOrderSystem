@@ -10,9 +10,13 @@ public class TokenService(IConfiguration config) : ITokenService
 {
     public (string Token, DateTime ExpiresAt) Generate(User user)
     {
-        var expiresAt = DateTime.UtcNow.AddMinutes(int.Parse(config["Jwt:ExpirationMinutes"]!));
+        var secret = config["Jwt:Secret"]
+            ?? throw new InvalidOperationException("Jwt:Secret não está configurado. Defina a variável de ambiente Jwt__Secret.");
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Secret"]!));
+        var minutes = int.Parse(config["Jwt:ExpirationMinutes"] ?? "60");
+        var expiresAt = DateTime.UtcNow.AddMinutes(minutes);
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
