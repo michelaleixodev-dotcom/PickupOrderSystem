@@ -12,8 +12,8 @@ using PickupOrderSystem.Infrastructure.Data;
 namespace PickupOrderSystem.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260611035844_AddRemainingEntities")]
-    partial class AddRemainingEntities
+    [Migration("20260611051116_InitialSchema")]
+    partial class InitialSchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -82,74 +82,6 @@ namespace PickupOrderSystem.Migrations
                     b.HasIndex("VehicleId");
 
                     b.ToTable("assignments", (string)null);
-                });
-
-            modelBuilder.Entity("PickupOrderSystem.Domain.Entities.Client", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id")
-                        .HasDefaultValueSql("gen_random_uuid()");
-
-                    b.Property<bool>("Active")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("ativo");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("endereco");
-
-                    b.Property<string>("Cnpj")
-                        .IsRequired()
-                        .HasMaxLength(18)
-                        .HasColumnType("character varying(18)")
-                        .HasColumnName("cnpj");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("email");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("nome");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("telefone");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at")
-                        .HasDefaultValueSql("now()");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Active");
-
-                    b.HasIndex("Cnpj")
-                        .IsUnique();
-
-                    b.HasIndex("Email");
-
-                    b.ToTable("clients", (string)null);
                 });
 
             modelBuilder.Entity("PickupOrderSystem.Domain.Entities.Driver", b =>
@@ -283,10 +215,6 @@ namespace PickupOrderSystem.Migrations
                         .HasColumnName("id")
                         .HasDefaultValueSql("gen_random_uuid()");
 
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("cliente_id");
-
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
@@ -353,9 +281,11 @@ namespace PickupOrderSystem.Migrations
                         .HasColumnName("updated_at")
                         .HasDefaultValueSql("now()");
 
-                    b.HasKey("Id");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("usuario_id");
 
-                    b.HasIndex("ClientId");
+                    b.HasKey("Id");
 
                     b.HasIndex("IdentificationNumber")
                         .IsUnique();
@@ -364,7 +294,84 @@ namespace PickupOrderSystem.Migrations
 
                     b.HasIndex("Status");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("pickup_requests", (string)null);
+                });
+
+            modelBuilder.Entity("PickupOrderSystem.Domain.Entities.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("ativo");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("endereco");
+
+                    b.Property<string>("Cnpj")
+                        .HasMaxLength(18)
+                        .HasColumnType("character varying(18)")
+                        .HasColumnName("cnpj");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("nome");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("senha_hash");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("telefone");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("tipo");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Active");
+
+                    b.HasIndex("Cnpj")
+                        .IsUnique()
+                        .HasFilter("cnpj IS NOT NULL");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Type");
+
+                    b.ToTable("users", (string)null);
                 });
 
             modelBuilder.Entity("PickupOrderSystem.Domain.Entities.Vehicle", b =>
@@ -467,13 +474,13 @@ namespace PickupOrderSystem.Migrations
 
             modelBuilder.Entity("PickupOrderSystem.Domain.Entities.PickupRequest", b =>
                 {
-                    b.HasOne("PickupOrderSystem.Domain.Entities.Client", "Client")
+                    b.HasOne("PickupOrderSystem.Domain.Entities.User", "User")
                         .WithMany()
-                        .HasForeignKey("ClientId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Client");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("PickupOrderSystem.Domain.Entities.PickupRequest", b =>

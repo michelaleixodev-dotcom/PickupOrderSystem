@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using PickupOrderSystem.Domain.Entities;
 using PickupOrderSystem.Domain.Enums;
@@ -6,16 +8,109 @@ namespace PickupOrderSystem.Infrastructure.Data;
 
 public static class DataSeeder
 {
+    // Hash simplificado apenas para seed — substitua pelo PasswordHasher da aplicação em produção
+    private static string HashPassword(string password) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(password)));
+
     public static async Task SeedAsync(AppDbContext context)
     {
-        if (await context.Drivers.AnyAsync())
+        if (await context.Users.AnyAsync())
             return;
 
         var now = DateTime.UtcNow;
 
-        var driverCarlos = new Driver
+        // Colaboradores — senha padrão: Senha@123
+        var colaborador1 = new User
         {
             Id = Guid.Parse("11111111-0000-0000-0000-000000000001"),
+            Name = "Lucas Mendes",
+            Email = "lucas.mendes@pickupsystem.com",
+            PasswordHash = HashPassword("Senha@123"),
+            Type = UserType.Colaborador,
+            Active = true,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        var colaborador2 = new User
+        {
+            Id = Guid.Parse("11111111-0000-0000-0000-000000000002"),
+            Name = "Juliana Ramos",
+            Email = "juliana.ramos@pickupsystem.com",
+            PasswordHash = HashPassword("Senha@123"),
+            Type = UserType.Colaborador,
+            Active = true,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        // Clientes — senha padrão: Senha@123
+        var clienteDistrib = new User
+        {
+            Id = Guid.Parse("11111111-0000-0000-0000-000000000003"),
+            Name = "Distribuidora Noroeste Ltda",
+            Email = "contato@distribnoroeste.com.br",
+            PasswordHash = HashPassword("Senha@123"),
+            Type = UserType.Cliente,
+            Active = true,
+            Cnpj = "12.345.678/0001-90",
+            Phone = "(11) 3001-2345",
+            Address = "Rua das Indústrias, 500, Vila Industrial, São Paulo - SP",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        var clienteFarma = new User
+        {
+            Id = Guid.Parse("11111111-0000-0000-0000-000000000004"),
+            Name = "Farmacêutica Vida Nova Ltda",
+            Email = "compras@vidanova.com.br",
+            PasswordHash = HashPassword("Senha@123"),
+            Type = UserType.Cliente,
+            Active = true,
+            Cnpj = "34.567.890/0001-12",
+            Phone = "(11) 3003-4567",
+            Address = "Rua Vergueiro, 3185, Saúde, São Paulo - SP",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        var clienteMetalurgica = new User
+        {
+            Id = Guid.Parse("11111111-0000-0000-0000-000000000005"),
+            Name = "Indústria Metalúrgica BR S.A.",
+            Email = "logistica@metbr.com.br",
+            PasswordHash = HashPassword("Senha@123"),
+            Type = UserType.Cliente,
+            Active = true,
+            Cnpj = "23.456.789/0001-01",
+            Phone = "(11) 3002-3456",
+            Address = "Av. das Nações Unidas, 12901, Brooklin, São Paulo - SP",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        var clienteSuper = new User
+        {
+            Id = Guid.Parse("11111111-0000-0000-0000-000000000006"),
+            Name = "Supermercados Central Ltda",
+            Email = "abastecimento@supercentral.com.br",
+            PasswordHash = HashPassword("Senha@123"),
+            Type = UserType.Cliente,
+            Active = true,
+            Cnpj = "45.678.901/0001-23",
+            Phone = "(11) 3004-5678",
+            Address = "Av. Paulista, 100, Bela Vista, São Paulo - SP",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        context.Users.AddRange(colaborador1, colaborador2, clienteDistrib, clienteFarma, clienteMetalurgica, clienteSuper);
+
+        // Drivers
+        var driverCarlos = new Driver
+        {
+            Id = Guid.Parse("22222222-0000-0000-0000-000000000001"),
             Name = "Carlos Eduardo Oliveira",
             Cnh = "12345678901",
             Email = "carlos.oliveira@transportes.com",
@@ -28,7 +123,7 @@ public static class DataSeeder
 
         var driverAna = new Driver
         {
-            Id = Guid.Parse("11111111-0000-0000-0000-000000000002"),
+            Id = Guid.Parse("22222222-0000-0000-0000-000000000002"),
             Name = "Ana Paula Santos",
             Cnh = "98765432100",
             Email = "ana.santos@transportes.com",
@@ -41,7 +136,7 @@ public static class DataSeeder
 
         var driverRoberto = new Driver
         {
-            Id = Guid.Parse("11111111-0000-0000-0000-000000000003"),
+            Id = Guid.Parse("22222222-0000-0000-0000-000000000003"),
             Name = "Roberto Ferreira Silva",
             Cnh = "55512345678",
             Email = "roberto.silva@transportes.com",
@@ -54,7 +149,7 @@ public static class DataSeeder
 
         var driverFernanda = new Driver
         {
-            Id = Guid.Parse("11111111-0000-0000-0000-000000000004"),
+            Id = Guid.Parse("22222222-0000-0000-0000-000000000004"),
             Name = "Fernanda Costa Lima",
             Cnh = "33398765432",
             Email = "fernanda.lima@transportes.com",
@@ -67,60 +162,7 @@ public static class DataSeeder
 
         context.Drivers.AddRange(driverCarlos, driverAna, driverRoberto, driverFernanda);
 
-        var clientDistrib = new Client
-        {
-            Id = Guid.Parse("22222222-0000-0000-0000-000000000001"),
-            Name = "Distribuidora Noroeste Ltda",
-            Cnpj = "12.345.678/0001-90",
-            Email = "contato@distribnoroeste.com.br",
-            Phone = "(11) 3001-2345",
-            Address = "Rua das Indústrias, 500, Vila Industrial, São Paulo - SP",
-            Active = true,
-            CreatedAt = now,
-            UpdatedAt = now
-        };
-
-        var clientMetalurgica = new Client
-        {
-            Id = Guid.Parse("22222222-0000-0000-0000-000000000002"),
-            Name = "Indústria Metalúrgica BR S.A.",
-            Cnpj = "23.456.789/0001-01",
-            Email = "logistica@metbr.com.br",
-            Phone = "(11) 3002-3456",
-            Address = "Av. das Nações Unidas, 12901, Brooklin, São Paulo - SP",
-            Active = true,
-            CreatedAt = now,
-            UpdatedAt = now
-        };
-
-        var clientFarma = new Client
-        {
-            Id = Guid.Parse("22222222-0000-0000-0000-000000000003"),
-            Name = "Farmacêutica Vida Nova Ltda",
-            Cnpj = "34.567.890/0001-12",
-            Email = "compras@vidanova.com.br",
-            Phone = "(11) 3003-4567",
-            Address = "Rua Vergueiro, 3185, Saúde, São Paulo - SP",
-            Active = true,
-            CreatedAt = now,
-            UpdatedAt = now
-        };
-
-        var clientSuper = new Client
-        {
-            Id = Guid.Parse("22222222-0000-0000-0000-000000000004"),
-            Name = "Supermercados Central Ltda",
-            Cnpj = "45.678.901/0001-23",
-            Email = "abastecimento@supercentral.com.br",
-            Phone = "(11) 3004-5678",
-            Address = "Av. Paulista, 100, Bela Vista, São Paulo - SP",
-            Active = true,
-            CreatedAt = now,
-            UpdatedAt = now
-        };
-
-        context.Clients.AddRange(clientDistrib, clientMetalurgica, clientFarma, clientSuper);
-
+        // Vehicles
         var vehicleFiorino = new Vehicle
         {
             Id = Guid.Parse("33333333-0000-0000-0000-000000000001"),
@@ -179,11 +221,12 @@ public static class DataSeeder
 
         context.Vehicles.AddRange(vehicleFiorino, vehicleIveco, vehicleSprinter, vehicleVW);
 
+        // PickupRequests — UserId referencia usuários do tipo Cliente
         var req1 = new PickupRequest
         {
             Id = Guid.Parse("44444444-0000-0000-0000-000000000001"),
             IdentificationNumber = "COL-2026-0001",
-            ClientId = clientDistrib.Id,
+            UserId = clienteDistrib.Id,
             Sender = "João Pereira",
             PickupAddress = "Rua das Indústrias, 500, Vila Industrial, São Paulo - SP",
             Recipient = "Maria Souza",
@@ -201,7 +244,7 @@ public static class DataSeeder
         {
             Id = Guid.Parse("44444444-0000-0000-0000-000000000002"),
             IdentificationNumber = "COL-2026-0002",
-            ClientId = clientMetalurgica.Id,
+            UserId = clienteMetalurgica.Id,
             Sender = "Pedro Alves",
             PickupAddress = "Av. das Nações Unidas, 12901, Brooklin, São Paulo - SP",
             Recipient = "Construtora São Jorge",
@@ -219,7 +262,7 @@ public static class DataSeeder
         {
             Id = Guid.Parse("44444444-0000-0000-0000-000000000003"),
             IdentificationNumber = "COL-2026-0003",
-            ClientId = clientFarma.Id,
+            UserId = clienteFarma.Id,
             Sender = "Farmacêutica Vida Nova",
             PickupAddress = "Rua Vergueiro, 3185, Saúde, São Paulo - SP",
             Recipient = "Hospital das Clínicas",
@@ -237,7 +280,7 @@ public static class DataSeeder
         {
             Id = Guid.Parse("44444444-0000-0000-0000-000000000004"),
             IdentificationNumber = "COL-2026-0004",
-            ClientId = clientSuper.Id,
+            UserId = clienteSuper.Id,
             Sender = "CD Supermercados Central",
             PickupAddress = "Av. Paulista, 100, Bela Vista, São Paulo - SP",
             Recipient = "Filial Mooca",
@@ -255,7 +298,7 @@ public static class DataSeeder
         {
             Id = Guid.Parse("44444444-0000-0000-0000-000000000005"),
             IdentificationNumber = "COL-2026-0005",
-            ClientId = clientDistrib.Id,
+            UserId = clienteDistrib.Id,
             Sender = "Distribuidora Noroeste",
             PickupAddress = "Rua Errada, 999, Bairro Inexistente, São Paulo - SP",
             Recipient = "TechCorp Tecnologia",
@@ -273,7 +316,7 @@ public static class DataSeeder
         {
             Id = Guid.Parse("44444444-0000-0000-0000-000000000006"),
             IdentificationNumber = "COL-2026-0006",
-            ClientId = clientMetalurgica.Id,
+            UserId = clienteMetalurgica.Id,
             Sender = "Metalúrgica BR",
             PickupAddress = "Av. das Nações Unidas, 12901, Brooklin, São Paulo - SP",
             Recipient = "Porto de Santos",
@@ -291,7 +334,7 @@ public static class DataSeeder
         {
             Id = Guid.Parse("44444444-0000-0000-0000-000000000007"),
             IdentificationNumber = "COL-2026-0007",
-            ClientId = clientFarma.Id,
+            UserId = clienteFarma.Id,
             Sender = "Vida Nova Distribuidora",
             PickupAddress = "Rua Vergueiro, 3185, Saúde, São Paulo - SP",
             Recipient = "UBS Jabaquara",
@@ -309,7 +352,7 @@ public static class DataSeeder
         {
             Id = Guid.Parse("44444444-0000-0000-0000-000000000008"),
             IdentificationNumber = "COL-2026-0008",
-            ClientId = clientSuper.Id,
+            UserId = clienteSuper.Id,
             Sender = "CD Supermercados Central",
             PickupAddress = "Av. Paulista, 100, Bela Vista, São Paulo - SP",
             Recipient = "Filial Santo André",
@@ -325,6 +368,7 @@ public static class DataSeeder
 
         context.PickupRequests.AddRange(req1, req2, req3, req4, req5, req6, req7, req8);
 
+        // Assignments
         var assign2 = new Assignment
         {
             Id = Guid.Parse("55555555-0000-0000-0000-000000000002"),
@@ -397,6 +441,7 @@ public static class DataSeeder
 
         context.Assignments.AddRange(assign2, assign3, assign4, assign5, assign8);
 
+        // Occurrences
         var occ1 = new Occurrence
         {
             Id = Guid.Parse("66666666-0000-0000-0000-000000000001"),
