@@ -1,0 +1,6 @@
+@PickupOrderSystem_HostAddress = http://localhost:5258
+
+GET {{PickupOrderSystem_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
