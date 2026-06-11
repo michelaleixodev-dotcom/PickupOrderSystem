@@ -12,9 +12,6 @@ app:
 app-stop:
 	docker compose stop api
 
-up:
-	docker compose up -d --build
-
 down:
 	docker compose down
 

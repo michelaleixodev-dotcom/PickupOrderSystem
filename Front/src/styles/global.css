@@ -350,6 +350,16 @@ code {
   background: #fff;
 }
 
+/* ── CEP ─────────────────────────────────────────────────────── */
+.cep-hint {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.cep-hint.cep-error {
+  color: #dc2626;
+}
+
 /* ── Feedback ────────────────────────────────────────────────── */
 .error-msg {
   color: #dc2626;
