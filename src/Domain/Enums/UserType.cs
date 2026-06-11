@@ -1,7 +1,8 @@
 namespace PickupOrderSystem.Domain.Enums;
 
-public enum UserType
+public enum UserRole
 {
     Colaborador,
-    Cliente
+    Cliente,
+    Motorista
 }

@@ -7,7 +7,8 @@ namespace PickupOrderSystem.Infrastructure.Data;
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     public DbSet<User> Users => Set<User>();
-    public DbSet<Driver> Drivers => Set<Driver>();
+    public DbSet<ClientProfile> ClientProfiles => Set<ClientProfile>();
+    public DbSet<DriverProfile> DriverProfiles => Set<DriverProfile>();
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();
     public DbSet<PickupRequest> PickupRequests => Set<PickupRequest>();
     public DbSet<Assignment> Assignments => Set<Assignment>();
@@ -24,32 +25,44 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(u => u.Email).HasColumnName("email").HasMaxLength(255).IsRequired();
             e.HasIndex(u => u.Email).IsUnique();
             e.Property(u => u.PasswordHash).HasColumnName("senha_hash").IsRequired();
-            e.Property(u => u.Type).HasColumnName("tipo").HasConversion<string>().IsRequired();
-            e.HasIndex(u => u.Type);
+            e.Property(u => u.Role).HasColumnName("role").HasConversion<string>().IsRequired();
+            e.HasIndex(u => u.Role);
             e.Property(u => u.Active).HasColumnName("ativo").IsRequired().HasDefaultValue(true);
             e.HasIndex(u => u.Active);
-            e.Property(u => u.Cnpj).HasColumnName("cnpj").HasMaxLength(18);
-            e.HasIndex(u => u.Cnpj).IsUnique().HasFilter("cnpj IS NOT NULL");
-            e.Property(u => u.Phone).HasColumnName("telefone").HasMaxLength(20);
-            e.Property(u => u.Address).HasColumnName("endereco").HasMaxLength(500);
             e.Property(u => u.CreatedAt).HasColumnName("created_at").IsRequired();
             e.Property(u => u.UpdatedAt).HasColumnName("updated_at").IsRequired();
         });
 
-        modelBuilder.Entity<Driver>(e =>
+        modelBuilder.Entity<ClientProfile>(e =>
         {
-            e.ToTable("drivers");
-            e.HasKey(d => d.Id);
-            e.Property(d => d.Id).HasColumnName("id").HasDefaultValueSql("gen_random_uuid()");
-            e.Property(d => d.Name).HasColumnName("nome").HasMaxLength(255).IsRequired();
+            e.ToTable("client_profiles");
+            e.HasKey(c => c.UserId);
+            e.Property(c => c.UserId).HasColumnName("user_id");
+            e.Property(c => c.Cnpj).HasColumnName("cnpj").HasMaxLength(18).IsRequired();
+            e.HasIndex(c => c.Cnpj).IsUnique();
+            e.Property(c => c.Phone).HasColumnName("telefone").HasMaxLength(20);
+            e.Property(c => c.Address).HasColumnName("endereco").HasMaxLength(500);
+
+            e.HasOne(c => c.User)
+                .WithOne(u => u.ClientProfile)
+                .HasForeignKey<ClientProfile>(c => c.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<DriverProfile>(e =>
+        {
+            e.ToTable("driver_profiles");
+            e.HasKey(d => d.UserId);
+            e.Property(d => d.UserId).HasColumnName("user_id");
             e.Property(d => d.Cnh).HasColumnName("cnh").HasMaxLength(20).IsRequired();
             e.HasIndex(d => d.Cnh).IsUnique();
-            e.Property(d => d.Email).HasColumnName("email").HasMaxLength(255).IsRequired();
-            e.Property(d => d.Phone).HasColumnName("telefone").HasMaxLength(20).IsRequired();
-            e.Property(d => d.Active).HasColumnName("ativo").IsRequired().HasDefaultValue(true);
             e.Property(d => d.AdmissionDate).HasColumnName("data_admissao").IsRequired();
-            e.Property(d => d.CreatedAt).HasColumnName("created_at").IsRequired();
-            e.Property(d => d.UpdatedAt).HasColumnName("updated_at").IsRequired();
+            e.Property(d => d.Active).HasColumnName("ativo").IsRequired().HasDefaultValue(true);
+
+            e.HasOne(d => d.User)
+                .WithOne(u => u.DriverProfile)
+                .HasForeignKey<DriverProfile>(d => d.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Vehicle>(e =>
@@ -104,7 +117,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasKey(a => a.Id);
             e.Property(a => a.Id).HasColumnName("id").HasDefaultValueSql("gen_random_uuid()");
             e.Property(a => a.PickupRequestId).HasColumnName("solicitacao_id").IsRequired();
-            e.HasIndex(a => a.PickupRequestId);
+            e.HasIndex(a => a.PickupRequestId).HasDatabaseName("IX_assignments_solicitacao_id");
             e.Property(a => a.DriverId).HasColumnName("motorista_id").IsRequired();
             e.HasIndex(a => a.DriverId);
             e.Property(a => a.VehicleId).HasColumnName("veiculo_id").IsRequired();
@@ -131,6 +144,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .WithMany()
                 .HasForeignKey(a => a.VehicleId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Uma única atribuição ativa (sem data_conclusao_real) por solicitação
+            e.HasIndex(a => a.PickupRequestId, "idx_assignment_ativa_unica")
+                .IsUnique()
+                .HasFilter("data_conclusao_real IS NULL");
         });
 
         modelBuilder.Entity<Occurrence>(e =>
@@ -145,7 +163,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(o => o.Description).HasColumnName("descricao").IsRequired();
             e.Property(o => o.OccurrenceDate).HasColumnName("data_hora").IsRequired().HasDefaultValueSql("now()");
             e.HasIndex(o => o.OccurrenceDate);
-            e.Property(o => o.RegisteredBy).HasColumnName("usuario_id").HasMaxLength(255).IsRequired();
+            e.Property(o => o.RegisteredById).HasColumnName("usuario_id").IsRequired();
+            e.HasIndex(o => o.RegisteredById);
+            e.Property(o => o.RegisteredByNameSnapshot).HasColumnName("usuario_nome_snapshot").HasMaxLength(255).IsRequired();
             e.Property(o => o.Resolved).HasColumnName("resolvida").IsRequired().HasDefaultValue(false);
             e.HasIndex(o => o.Resolved);
             e.Property(o => o.ResolutionNotes).HasColumnName("observacoes_resolucao");
@@ -155,6 +175,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasOne(o => o.PickupRequest)
                 .WithMany(r => r.Occurrences)
                 .HasForeignKey(o => o.PickupRequestId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne(o => o.RegisteredBy)
+                .WithMany()
+                .HasForeignKey(o => o.RegisteredById)
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }

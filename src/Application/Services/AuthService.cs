@@ -19,6 +19,6 @@ public class AuthService(AppDbContext db, ITokenService tokenService) : IAuthSer
             return null;
 
         var (token, expiresAt) = tokenService.Generate(user);
-        return new LoginResponse(token, user.Type.ToString(), user.Name, expiresAt);
+        return new LoginResponse(token, user.Role.ToString(), user.Name, expiresAt);
     }
 }

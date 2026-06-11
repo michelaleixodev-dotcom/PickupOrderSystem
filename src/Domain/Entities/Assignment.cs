@@ -14,6 +14,6 @@ public class Assignment
     public DateTime UpdatedAt { get; set; }
 
     public PickupRequest PickupRequest { get; set; } = null!;
-    public Driver Driver { get; set; } = null!;
+    public User Driver { get; set; } = null!;
     public Vehicle Vehicle { get; set; } = null!;
 }

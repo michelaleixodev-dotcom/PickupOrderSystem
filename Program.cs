@@ -36,7 +36,8 @@ builder.Services
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("Colaborador", policy => policy.RequireRole("Colaborador"))
-    .AddPolicy("Cliente", policy => policy.RequireRole("Cliente"));
+    .AddPolicy("Cliente", policy => policy.RequireRole("Cliente"))
+    .AddPolicy("Motorista", policy => policy.RequireRole("Motorista"));
 
 var app = builder.Build();
 
