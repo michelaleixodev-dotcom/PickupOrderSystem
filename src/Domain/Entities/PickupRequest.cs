@@ -6,7 +6,7 @@ public class PickupRequest
 {
     public Guid Id { get; set; }
     public string IdentificationNumber { get; set; } = null!;
-    public Guid ClientId { get; set; }
+    public Guid UserId { get; set; }
     public string Sender { get; set; } = null!;
     public string PickupAddress { get; set; } = null!;
     public string Recipient { get; set; } = null!;
@@ -19,7 +19,7 @@ public class PickupRequest
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
-    public Client Client { get; set; } = null!;
+    public User User { get; set; } = null!;
     public ICollection<Assignment> Assignments { get; set; } = [];
     public ICollection<Occurrence> Occurrences { get; set; } = [];
 }

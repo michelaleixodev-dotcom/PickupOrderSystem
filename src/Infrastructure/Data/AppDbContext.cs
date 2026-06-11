@@ -6,8 +6,8 @@ namespace PickupOrderSystem.Infrastructure.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
+    public DbSet<User> Users => Set<User>();
     public DbSet<Driver> Drivers => Set<Driver>();
-    public DbSet<Client> Clients => Set<Client>();
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();
     public DbSet<PickupRequest> PickupRequests => Set<PickupRequest>();
     public DbSet<Assignment> Assignments => Set<Assignment>();
@@ -15,6 +15,27 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<User>(e =>
+        {
+            e.ToTable("users");
+            e.HasKey(u => u.Id);
+            e.Property(u => u.Id).HasColumnName("id").HasDefaultValueSql("gen_random_uuid()");
+            e.Property(u => u.Name).HasColumnName("nome").HasMaxLength(255).IsRequired();
+            e.Property(u => u.Email).HasColumnName("email").HasMaxLength(255).IsRequired();
+            e.HasIndex(u => u.Email).IsUnique();
+            e.Property(u => u.PasswordHash).HasColumnName("senha_hash").IsRequired();
+            e.Property(u => u.Type).HasColumnName("tipo").HasConversion<string>().IsRequired();
+            e.HasIndex(u => u.Type);
+            e.Property(u => u.Active).HasColumnName("ativo").IsRequired().HasDefaultValue(true);
+            e.HasIndex(u => u.Active);
+            e.Property(u => u.Cnpj).HasColumnName("cnpj").HasMaxLength(18);
+            e.HasIndex(u => u.Cnpj).IsUnique().HasFilter("cnpj IS NOT NULL");
+            e.Property(u => u.Phone).HasColumnName("telefone").HasMaxLength(20);
+            e.Property(u => u.Address).HasColumnName("endereco").HasMaxLength(500);
+            e.Property(u => u.CreatedAt).HasColumnName("created_at").IsRequired();
+            e.Property(u => u.UpdatedAt).HasColumnName("updated_at").IsRequired();
+        });
+
         modelBuilder.Entity<Driver>(e =>
         {
             e.ToTable("drivers");
@@ -29,24 +50,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(d => d.AdmissionDate).HasColumnName("data_admissao").IsRequired();
             e.Property(d => d.CreatedAt).HasColumnName("created_at").IsRequired();
             e.Property(d => d.UpdatedAt).HasColumnName("updated_at").IsRequired();
-        });
-
-        modelBuilder.Entity<Client>(e =>
-        {
-            e.ToTable("clients");
-            e.HasKey(c => c.Id);
-            e.Property(c => c.Id).HasColumnName("id").HasDefaultValueSql("gen_random_uuid()");
-            e.Property(c => c.Name).HasColumnName("nome").HasMaxLength(255).IsRequired();
-            e.Property(c => c.Cnpj).HasColumnName("cnpj").HasMaxLength(18).IsRequired();
-            e.HasIndex(c => c.Cnpj).IsUnique();
-            e.Property(c => c.Email).HasColumnName("email").HasMaxLength(255).IsRequired();
-            e.HasIndex(c => c.Email);
-            e.Property(c => c.Phone).HasColumnName("telefone").HasMaxLength(20).IsRequired();
-            e.Property(c => c.Address).HasColumnName("endereco").HasMaxLength(500).IsRequired();
-            e.Property(c => c.Active).HasColumnName("ativo").IsRequired().HasDefaultValue(true);
-            e.HasIndex(c => c.Active);
-            e.Property(c => c.CreatedAt).HasColumnName("created_at").IsRequired().HasDefaultValueSql("now()");
-            e.Property(c => c.UpdatedAt).HasColumnName("updated_at").IsRequired().HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<Vehicle>(e =>
@@ -74,7 +77,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(r => r.Id).HasColumnName("id").HasDefaultValueSql("gen_random_uuid()");
             e.Property(r => r.IdentificationNumber).HasColumnName("numero_identificacao").HasMaxLength(50).IsRequired();
             e.HasIndex(r => r.IdentificationNumber).IsUnique();
-            e.Property(r => r.ClientId).HasColumnName("cliente_id").IsRequired();
+            e.Property(r => r.UserId).HasColumnName("usuario_id").IsRequired();
             e.Property(r => r.Sender).HasColumnName("remetente").HasMaxLength(255).IsRequired();
             e.Property(r => r.PickupAddress).HasColumnName("endereco_coleta").HasMaxLength(500).IsRequired();
             e.Property(r => r.Recipient).HasColumnName("destinatario").HasMaxLength(255).IsRequired();
@@ -89,9 +92,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(r => r.CreatedAt).HasColumnName("created_at").IsRequired().HasDefaultValueSql("now()");
             e.Property(r => r.UpdatedAt).HasColumnName("updated_at").IsRequired().HasDefaultValueSql("now()");
 
-            e.HasOne(r => r.Client)
+            e.HasOne(r => r.User)
                 .WithMany()
-                .HasForeignKey(r => r.ClientId)
+                .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
