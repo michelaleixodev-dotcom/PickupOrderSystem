@@ -12,25 +12,6 @@ namespace PickupOrderSystem.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "drivers",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
-                    nome = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    cnh = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                    email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    telefone = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                    ativo = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
-                    data_admissao = table.Column<DateOnly>(type: "date", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_drivers", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "users",
                 columns: table => new
                 {
@@ -38,11 +19,8 @@ namespace PickupOrderSystem.Migrations
                     nome = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     senha_hash = table.Column<string>(type: "text", nullable: false),
-                    tipo = table.Column<string>(type: "text", nullable: false),
+                    role = table.Column<string>(type: "text", nullable: false),
                     ativo = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
-                    cnpj = table.Column<string>(type: "character varying(18)", maxLength: 18, nullable: true),
-                    telefone = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
-                    endereco = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -69,6 +47,46 @@ namespace PickupOrderSystem.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_vehicles", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "client_profiles",
+                columns: table => new
+                {
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    cnpj = table.Column<string>(type: "character varying(18)", maxLength: 18, nullable: false),
+                    telefone = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
+                    endereco = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_client_profiles", x => x.user_id);
+                    table.ForeignKey(
+                        name: "FK_client_profiles_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "driver_profiles",
+                columns: table => new
+                {
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    cnh = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    data_admissao = table.Column<DateOnly>(type: "date", nullable: false),
+                    ativo = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_driver_profiles", x => x.user_id);
+                    table.ForeignKey(
+                        name: "FK_driver_profiles_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -120,15 +138,15 @@ namespace PickupOrderSystem.Migrations
                 {
                     table.PrimaryKey("PK_assignments", x => x.id);
                     table.ForeignKey(
-                        name: "FK_assignments_drivers_motorista_id",
-                        column: x => x.motorista_id,
-                        principalTable: "drivers",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_assignments_pickup_requests_solicitacao_id",
                         column: x => x.solicitacao_id,
                         principalTable: "pickup_requests",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_assignments_users_motorista_id",
+                        column: x => x.motorista_id,
+                        principalTable: "users",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -148,7 +166,8 @@ namespace PickupOrderSystem.Migrations
                     tipo = table.Column<string>(type: "text", nullable: false),
                     descricao = table.Column<string>(type: "text", nullable: false),
                     data_hora = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
-                    usuario_id = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    usuario_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    usuario_nome_snapshot = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     resolvida = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     observacoes_resolucao = table.Column<string>(type: "text", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -163,7 +182,20 @@ namespace PickupOrderSystem.Migrations
                         principalTable: "pickup_requests",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_occurrences_users_usuario_id",
+                        column: x => x.usuario_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "idx_assignment_ativa_unica",
+                table: "assignments",
+                column: "solicitacao_id",
+                unique: true,
+                filter: "data_conclusao_real IS NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_assignments_data_atribuicao",
@@ -186,8 +218,14 @@ namespace PickupOrderSystem.Migrations
                 column: "veiculo_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_drivers_cnh",
-                table: "drivers",
+                name: "IX_client_profiles_cnpj",
+                table: "client_profiles",
+                column: "cnpj",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_driver_profiles_cnh",
+                table: "driver_profiles",
                 column: "cnh",
                 unique: true);
 
@@ -210,6 +248,11 @@ namespace PickupOrderSystem.Migrations
                 name: "IX_occurrences_tipo",
                 table: "occurrences",
                 column: "tipo");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_occurrences_usuario_id",
+                table: "occurrences",
+                column: "usuario_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_pickup_requests_data_coleta_prevista",
@@ -238,22 +281,15 @@ namespace PickupOrderSystem.Migrations
                 column: "ativo");
 
             migrationBuilder.CreateIndex(
-                name: "IX_users_cnpj",
-                table: "users",
-                column: "cnpj",
-                unique: true,
-                filter: "cnpj IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_users_email",
                 table: "users",
                 column: "email",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_users_tipo",
+                name: "IX_users_role",
                 table: "users",
-                column: "tipo");
+                column: "role");
 
             migrationBuilder.CreateIndex(
                 name: "IX_vehicles_ativo",
@@ -274,10 +310,13 @@ namespace PickupOrderSystem.Migrations
                 name: "assignments");
 
             migrationBuilder.DropTable(
-                name: "occurrences");
+                name: "client_profiles");
 
             migrationBuilder.DropTable(
-                name: "drivers");
+                name: "driver_profiles");
+
+            migrationBuilder.DropTable(
+                name: "occurrences");
 
             migrationBuilder.DropTable(
                 name: "vehicles");

@@ -8,9 +8,11 @@ namespace PickupOrderSystem.Infrastructure.Data;
 
 public static class DataSeeder
 {
-    // Hash simplificado apenas para seed — substitua pelo PasswordHasher da aplicação em produção
     private static string HashPassword(string password) =>
         Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(password)));
+
+    // Placeholder que não bate com nenhum hash real — força reset de senha no 1º login
+    private const string PlaceholderPasswordHash = "PLACEHOLDER_FORCE_RESET";
 
     public static async Task SeedAsync(AppDbContext context)
     {
@@ -19,14 +21,14 @@ public static class DataSeeder
 
         var now = DateTime.UtcNow;
 
-        // Colaboradores — senha padrão: Senha@123
+        // ── Colaboradores ─────────────────────────────────────────────────────
         var colaborador1 = new User
         {
             Id = Guid.Parse("11111111-0000-0000-0000-000000000001"),
             Name = "Lucas Mendes",
             Email = "lucas.mendes@pickupsystem.com",
             PasswordHash = HashPassword("Senha@123"),
-            Type = UserType.Colaborador,
+            Role = UserRole.Colaborador,
             Active = true,
             CreatedAt = now,
             UpdatedAt = now
@@ -38,24 +40,21 @@ public static class DataSeeder
             Name = "Juliana Ramos",
             Email = "juliana.ramos@pickupsystem.com",
             PasswordHash = HashPassword("Senha@123"),
-            Type = UserType.Colaborador,
+            Role = UserRole.Colaborador,
             Active = true,
             CreatedAt = now,
             UpdatedAt = now
         };
 
-        // Clientes — senha padrão: Senha@123
+        // ── Clientes ──────────────────────────────────────────────────────────
         var clienteDistrib = new User
         {
             Id = Guid.Parse("11111111-0000-0000-0000-000000000003"),
             Name = "Distribuidora Noroeste Ltda",
             Email = "contato@distribnoroeste.com.br",
             PasswordHash = HashPassword("Senha@123"),
-            Type = UserType.Cliente,
+            Role = UserRole.Cliente,
             Active = true,
-            Cnpj = "12.345.678/0001-90",
-            Phone = "(11) 3001-2345",
-            Address = "Rua das Indústrias, 500, Vila Industrial, São Paulo - SP",
             CreatedAt = now,
             UpdatedAt = now
         };
@@ -66,11 +65,8 @@ public static class DataSeeder
             Name = "Farmacêutica Vida Nova Ltda",
             Email = "compras@vidanova.com.br",
             PasswordHash = HashPassword("Senha@123"),
-            Type = UserType.Cliente,
+            Role = UserRole.Cliente,
             Active = true,
-            Cnpj = "34.567.890/0001-12",
-            Phone = "(11) 3003-4567",
-            Address = "Rua Vergueiro, 3185, Saúde, São Paulo - SP",
             CreatedAt = now,
             UpdatedAt = now
         };
@@ -81,11 +77,8 @@ public static class DataSeeder
             Name = "Indústria Metalúrgica BR S.A.",
             Email = "logistica@metbr.com.br",
             PasswordHash = HashPassword("Senha@123"),
-            Type = UserType.Cliente,
+            Role = UserRole.Cliente,
             Active = true,
-            Cnpj = "23.456.789/0001-01",
-            Phone = "(11) 3002-3456",
-            Address = "Av. das Nações Unidas, 12901, Brooklin, São Paulo - SP",
             CreatedAt = now,
             UpdatedAt = now
         };
@@ -96,73 +89,129 @@ public static class DataSeeder
             Name = "Supermercados Central Ltda",
             Email = "abastecimento@supercentral.com.br",
             PasswordHash = HashPassword("Senha@123"),
-            Type = UserType.Cliente,
+            Role = UserRole.Cliente,
             Active = true,
-            Cnpj = "45.678.901/0001-23",
-            Phone = "(11) 3004-5678",
-            Address = "Av. Paulista, 100, Bela Vista, São Paulo - SP",
             CreatedAt = now,
             UpdatedAt = now
         };
 
-        context.Users.AddRange(colaborador1, colaborador2, clienteDistrib, clienteFarma, clienteMetalurgica, clienteSuper);
-
-        // Drivers
-        var driverCarlos = new Driver
+        // ── Motoristas (migrados de drivers) ──────────────────────────────────
+        var motoristaCarlos = new User
         {
-            Id = Guid.Parse("22222222-0000-0000-0000-000000000001"),
+            Id = Guid.Parse("77777777-0000-0000-0000-000000000001"),
             Name = "Carlos Eduardo Oliveira",
-            Cnh = "12345678901",
             Email = "carlos.oliveira@transportes.com",
-            Phone = "(11) 99001-2345",
+            PasswordHash = PlaceholderPasswordHash,
+            Role = UserRole.Motorista,
             Active = true,
-            AdmissionDate = new DateOnly(2022, 3, 15),
             CreatedAt = now,
             UpdatedAt = now
         };
 
-        var driverAna = new Driver
+        var motoristaAna = new User
         {
-            Id = Guid.Parse("22222222-0000-0000-0000-000000000002"),
+            Id = Guid.Parse("77777777-0000-0000-0000-000000000002"),
             Name = "Ana Paula Santos",
-            Cnh = "98765432100",
             Email = "ana.santos@transportes.com",
-            Phone = "(11) 98765-4321",
+            PasswordHash = PlaceholderPasswordHash,
+            Role = UserRole.Motorista,
             Active = true,
-            AdmissionDate = new DateOnly(2021, 7, 1),
             CreatedAt = now,
             UpdatedAt = now
         };
 
-        var driverRoberto = new Driver
+        var motoristaRoberto = new User
         {
-            Id = Guid.Parse("22222222-0000-0000-0000-000000000003"),
+            Id = Guid.Parse("77777777-0000-0000-0000-000000000003"),
             Name = "Roberto Ferreira Silva",
-            Cnh = "55512345678",
             Email = "roberto.silva@transportes.com",
-            Phone = "(11) 97654-3210",
+            PasswordHash = PlaceholderPasswordHash,
+            Role = UserRole.Motorista,
             Active = true,
-            AdmissionDate = new DateOnly(2023, 1, 10),
             CreatedAt = now,
             UpdatedAt = now
         };
 
-        var driverFernanda = new Driver
+        var motoristaFernanda = new User
         {
-            Id = Guid.Parse("22222222-0000-0000-0000-000000000004"),
+            Id = Guid.Parse("77777777-0000-0000-0000-000000000004"),
             Name = "Fernanda Costa Lima",
-            Cnh = "33398765432",
             Email = "fernanda.lima@transportes.com",
-            Phone = "(11) 96543-2109",
+            PasswordHash = PlaceholderPasswordHash,
+            Role = UserRole.Motorista,
             Active = true,
-            AdmissionDate = new DateOnly(2020, 11, 20),
             CreatedAt = now,
             UpdatedAt = now
         };
 
-        context.Drivers.AddRange(driverCarlos, driverAna, driverRoberto, driverFernanda);
+        context.Users.AddRange(
+            colaborador1, colaborador2,
+            clienteDistrib, clienteFarma, clienteMetalurgica, clienteSuper,
+            motoristaCarlos, motoristaAna, motoristaRoberto, motoristaFernanda);
 
-        // Vehicles
+        // ── ClientProfiles ────────────────────────────────────────────────────
+        context.ClientProfiles.AddRange(
+            new ClientProfile
+            {
+                UserId = clienteDistrib.Id,
+                Cnpj = "12.345.678/0001-90",
+                Phone = "(11) 3001-2345",
+                Address = "Rua das Indústrias, 500, Vila Industrial, São Paulo - SP"
+            },
+            new ClientProfile
+            {
+                UserId = clienteFarma.Id,
+                Cnpj = "34.567.890/0001-12",
+                Phone = "(11) 3003-4567",
+                Address = "Rua Vergueiro, 3185, Saúde, São Paulo - SP"
+            },
+            new ClientProfile
+            {
+                UserId = clienteMetalurgica.Id,
+                Cnpj = "23.456.789/0001-01",
+                Phone = "(11) 3002-3456",
+                Address = "Av. das Nações Unidas, 12901, Brooklin, São Paulo - SP"
+            },
+            new ClientProfile
+            {
+                UserId = clienteSuper.Id,
+                Cnpj = "45.678.901/0001-23",
+                Phone = "(11) 3004-5678",
+                Address = "Av. Paulista, 100, Bela Vista, São Paulo - SP"
+            });
+
+        // ── DriverProfiles ────────────────────────────────────────────────────
+        context.DriverProfiles.AddRange(
+            new DriverProfile
+            {
+                UserId = motoristaCarlos.Id,
+                Cnh = "12345678901",
+                AdmissionDate = new DateOnly(2022, 3, 15),
+                Active = true
+            },
+            new DriverProfile
+            {
+                UserId = motoristaAna.Id,
+                Cnh = "98765432100",
+                AdmissionDate = new DateOnly(2021, 7, 1),
+                Active = true
+            },
+            new DriverProfile
+            {
+                UserId = motoristaRoberto.Id,
+                Cnh = "55512345678",
+                AdmissionDate = new DateOnly(2023, 1, 10),
+                Active = true
+            },
+            new DriverProfile
+            {
+                UserId = motoristaFernanda.Id,
+                Cnh = "33398765432",
+                AdmissionDate = new DateOnly(2020, 11, 20),
+                Active = true
+            });
+
+        // ── Vehicles ──────────────────────────────────────────────────────────
         var vehicleFiorino = new Vehicle
         {
             Id = Guid.Parse("33333333-0000-0000-0000-000000000001"),
@@ -221,7 +270,7 @@ public static class DataSeeder
 
         context.Vehicles.AddRange(vehicleFiorino, vehicleIveco, vehicleSprinter, vehicleVW);
 
-        // PickupRequests — UserId referencia usuários do tipo Cliente
+        // ── PickupRequests ────────────────────────────────────────────────────
         var req1 = new PickupRequest
         {
             Id = Guid.Parse("44444444-0000-0000-0000-000000000001"),
@@ -368,12 +417,12 @@ public static class DataSeeder
 
         context.PickupRequests.AddRange(req1, req2, req3, req4, req5, req6, req7, req8);
 
-        // Assignments
+        // ── Assignments (DriverId → users.id com role=Motorista) ──────────────
         var assign2 = new Assignment
         {
             Id = Guid.Parse("55555555-0000-0000-0000-000000000002"),
             PickupRequestId = req2.Id,
-            DriverId = driverAna.Id,
+            DriverId = motoristaAna.Id,
             VehicleId = vehicleFiorino.Id,
             AssignmentDate = new DateTime(2026, 6, 7, 8, 0, 0, DateTimeKind.Utc),
             ActualStartDate = null,
@@ -387,7 +436,7 @@ public static class DataSeeder
         {
             Id = Guid.Parse("55555555-0000-0000-0000-000000000003"),
             PickupRequestId = req3.Id,
-            DriverId = driverCarlos.Id,
+            DriverId = motoristaCarlos.Id,
             VehicleId = vehicleIveco.Id,
             AssignmentDate = new DateTime(2026, 6, 9, 7, 0, 0, DateTimeKind.Utc),
             ActualStartDate = new DateTime(2026, 6, 11, 8, 30, 0, DateTimeKind.Utc),
@@ -401,7 +450,7 @@ public static class DataSeeder
         {
             Id = Guid.Parse("55555555-0000-0000-0000-000000000004"),
             PickupRequestId = req4.Id,
-            DriverId = driverRoberto.Id,
+            DriverId = motoristaRoberto.Id,
             VehicleId = vehicleSprinter.Id,
             AssignmentDate = new DateTime(2026, 6, 1, 18, 0, 0, DateTimeKind.Utc),
             ActualStartDate = new DateTime(2026, 6, 2, 7, 15, 0, DateTimeKind.Utc),
@@ -415,7 +464,7 @@ public static class DataSeeder
         {
             Id = Guid.Parse("55555555-0000-0000-0000-000000000005"),
             PickupRequestId = req5.Id,
-            DriverId = driverFernanda.Id,
+            DriverId = motoristaFernanda.Id,
             VehicleId = vehicleVW.Id,
             AssignmentDate = new DateTime(2026, 6, 3, 20, 0, 0, DateTimeKind.Utc),
             ActualStartDate = new DateTime(2026, 6, 4, 9, 0, 0, DateTimeKind.Utc),
@@ -429,7 +478,7 @@ public static class DataSeeder
         {
             Id = Guid.Parse("55555555-0000-0000-0000-000000000008"),
             PickupRequestId = req8.Id,
-            DriverId = driverCarlos.Id,
+            DriverId = motoristaCarlos.Id,
             VehicleId = vehicleVW.Id,
             AssignmentDate = new DateTime(2026, 6, 9, 18, 0, 0, DateTimeKind.Utc),
             ActualStartDate = new DateTime(2026, 6, 11, 7, 0, 0, DateTimeKind.Utc),
@@ -441,7 +490,7 @@ public static class DataSeeder
 
         context.Assignments.AddRange(assign2, assign3, assign4, assign5, assign8);
 
-        // Occurrences
+        // ── Occurrences (RegisteredById → users.id + snapshot do nome) ────────
         var occ1 = new Occurrence
         {
             Id = Guid.Parse("66666666-0000-0000-0000-000000000001"),
@@ -449,7 +498,8 @@ public static class DataSeeder
             Type = OccurrenceType.EnderecoIncorreto,
             Description = "O endereço informado na solicitação não existe. GPS não reconhece a rua e moradores locais desconhecem o número.",
             OccurrenceDate = new DateTime(2026, 6, 4, 9, 30, 0, DateTimeKind.Utc),
-            RegisteredBy = "Fernanda Costa Lima",
+            RegisteredById = motoristaFernanda.Id,
+            RegisteredByNameSnapshot = "Fernanda Costa Lima",
             Resolved = false,
             ResolutionNotes = null,
             CreatedAt = now,
@@ -463,7 +513,8 @@ public static class DataSeeder
             Type = OccurrenceType.RemetenteIndisponivel,
             Description = "Responsável pela carga não estava presente no momento da coleta. Aguardou 20 minutos.",
             OccurrenceDate = new DateTime(2026, 6, 11, 8, 45, 0, DateTimeKind.Utc),
-            RegisteredBy = "Carlos Eduardo Oliveira",
+            RegisteredById = motoristaCarlos.Id,
+            RegisteredByNameSnapshot = "Carlos Eduardo Oliveira",
             Resolved = true,
             ResolutionNotes = "Responsável retornou e liberou a carga após 30 minutos de espera.",
             CreatedAt = now,
@@ -477,7 +528,8 @@ public static class DataSeeder
             Type = OccurrenceType.CargaDivergente,
             Description = "Quantidade de volumes entregues difere do manifesto (48 caixas vs 50 previstas).",
             OccurrenceDate = new DateTime(2026, 6, 2, 10, 30, 0, DateTimeKind.Utc),
-            RegisteredBy = "Roberto Ferreira Silva",
+            RegisteredById = motoristaRoberto.Id,
+            RegisteredByNameSnapshot = "Roberto Ferreira Silva",
             Resolved = true,
             ResolutionNotes = "Cliente confirmou recebimento. Diferença já ajustada na nota fiscal.",
             CreatedAt = now,
