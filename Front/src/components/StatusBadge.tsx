@@ -1,7 +1,9 @@
 const STATUS_COLORS: Record<string, string> = {
   Aberta: '#3b82f6',
   Atribuida: '#8b5cf6',
-  EmAndamento: '#f59e0b',
+  EmColeta: '#f59e0b',
+  Coletado: '#6366f1',
+  ACaminho: '#a855f7',
   Concluida: '#10b981',
   FalhaNaColeta: '#ef4444',
   AguardandoDecisao: '#ea580c',
@@ -11,7 +13,9 @@ const STATUS_COLORS: Record<string, string> = {
 const STATUS_LABELS: Record<string, string> = {
   Aberta: 'Aberta',
   Atribuida: 'Atribuída',
-  EmAndamento: 'Em Andamento',
+  EmColeta: 'Em Coleta',
+  Coletado: 'Coletado',
+  ACaminho: 'A Caminho',
   Concluida: 'Concluída',
   FalhaNaColeta: 'Falha na Coleta',
   AguardandoDecisao: 'Aguardando Decisão',

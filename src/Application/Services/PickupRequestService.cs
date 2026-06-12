@@ -116,8 +116,10 @@ public class PickupRequestService(
         var allowed = r.Status switch
         {
             PickupRequestStatus.Aberta            => new[] { PickupRequestStatus.Cancelada },
-            PickupRequestStatus.Atribuida         => new[] { PickupRequestStatus.EmAndamento, PickupRequestStatus.Cancelada },
-            PickupRequestStatus.EmAndamento       => new[] { PickupRequestStatus.Concluida, PickupRequestStatus.FalhaNaColeta, PickupRequestStatus.Cancelada },
+            PickupRequestStatus.Atribuida         => new[] { PickupRequestStatus.EmColeta, PickupRequestStatus.Cancelada },
+            PickupRequestStatus.EmColeta          => new[] { PickupRequestStatus.Coletado, PickupRequestStatus.FalhaNaColeta, PickupRequestStatus.Cancelada },
+            PickupRequestStatus.Coletado          => new[] { PickupRequestStatus.ACaminho, PickupRequestStatus.Cancelada },
+            PickupRequestStatus.ACaminho          => new[] { PickupRequestStatus.Concluida, PickupRequestStatus.Cancelada },
             PickupRequestStatus.FalhaNaColeta     => new[] { PickupRequestStatus.AguardandoDecisao, PickupRequestStatus.Cancelada },
             PickupRequestStatus.AguardandoDecisao => new[] { PickupRequestStatus.Atribuida, PickupRequestStatus.Cancelada },
             _                                     => Array.Empty<PickupRequestStatus>()
@@ -232,8 +234,8 @@ public class PickupRequestService(
         var r = await pickupRequestRepo.GetByIdAsync(id)
             ?? throw new NotFoundException();
 
-        if (r.Status != PickupRequestStatus.EmAndamento)
-            throw new BusinessRuleException("Apenas pedidos Em Andamento podem registrar falha.");
+        if (r.Status != PickupRequestStatus.EmColeta)
+            throw new BusinessRuleException("Apenas pedidos Em Coleta podem registrar falha.");
 
         var now = DateTime.UtcNow;
 

@@ -319,7 +319,7 @@ public static class DataSeeder
             RequestDate = new DateTime(2026, 6, 8, 8, 0, 0, DateTimeKind.Utc),
             ScheduledPickupDate = new DateOnly(2026, 6, 11),
             Priority = Priority.Urgente,
-            Status = PickupRequestStatus.EmAndamento,
+            Status = PickupRequestStatus.EmColeta,
             Notes = "Medicamentos controlados. Documentação obrigatória.",
             CreatedAt = now,
             UpdatedAt = now
@@ -409,7 +409,7 @@ public static class DataSeeder
             RequestDate = new DateTime(2026, 6, 9, 6, 0, 0, DateTimeKind.Utc),
             ScheduledPickupDate = new DateOnly(2026, 6, 11),
             Priority = Priority.Alta,
-            Status = PickupRequestStatus.EmAndamento,
+            Status = PickupRequestStatus.EmColeta,
             Notes = null,
             CreatedAt = now,
             UpdatedAt = now
