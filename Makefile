@@ -1,4 +1,4 @@
-.PHONY: db db-stop app app-stop front front-install up down logs reset
+.PHONY: db db-stop app app-stop front front-install up down logs reset test
 
 # ── Banco de dados ────────────────────────────────────────────────
 db:
@@ -32,6 +32,10 @@ down:
 # ── Reset completo (apaga volume do banco) ────────────────────────
 reset:
 	docker compose down -v
+
+# ── Testes unitários ─────────────────────────────────────────────
+test:
+	dotnet test src/Tests/Tests.csproj
 
 # ── Logs da API ──────────────────────────────────────────────────
 logs:

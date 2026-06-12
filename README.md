@@ -67,6 +67,16 @@ make front        # inicia o frontend (primeira vez: make front-install antes)
 
 ---
 
+## Testes
+
+```bash
+make test
+```
+
+Executa os testes unitários da camada de serviço. Nenhuma dependência externa é necessária.
+
+---
+
 ## Outros comandos úteis
 
 ```bash
