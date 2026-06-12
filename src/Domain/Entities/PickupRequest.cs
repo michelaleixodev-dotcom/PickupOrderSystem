@@ -22,4 +22,5 @@ public class PickupRequest
     public User User { get; set; } = null!;
     public ICollection<Assignment> Assignments { get; set; } = [];
     public ICollection<Occurrence> Occurrences { get; set; } = [];
+    public ICollection<StatusHistory> StatusHistories { get; set; } = [];
 }
