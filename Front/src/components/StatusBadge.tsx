@@ -4,6 +4,7 @@ const STATUS_COLORS: Record<string, string> = {
   EmAndamento: '#f59e0b',
   Concluida: '#10b981',
   FalhaNaColeta: '#ef4444',
+  AguardandoDecisao: '#ea580c',
   Cancelada: '#6b7280',
 };
 
@@ -13,6 +14,7 @@ const STATUS_LABELS: Record<string, string> = {
   EmAndamento: 'Em Andamento',
   Concluida: 'Concluída',
   FalhaNaColeta: 'Falha na Coleta',
+  AguardandoDecisao: 'Aguardando Decisão',
   Cancelada: 'Cancelada',
 };
 

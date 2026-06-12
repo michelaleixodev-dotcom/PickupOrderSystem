@@ -7,5 +7,6 @@ public enum PickupRequestStatus
     EmAndamento,
     Concluida,
     FalhaNaColeta,
+    AguardandoDecisao,
     Cancelada
 }

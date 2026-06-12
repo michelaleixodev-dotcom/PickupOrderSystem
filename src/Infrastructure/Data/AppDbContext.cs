@@ -13,6 +13,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<PickupRequest> PickupRequests => Set<PickupRequest>();
     public DbSet<Assignment> Assignments => Set<Assignment>();
     public DbSet<Occurrence> Occurrences => Set<Occurrence>();
+    public DbSet<StatusHistory> StatusHistories => Set<StatusHistory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -180,6 +181,26 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasOne(o => o.RegisteredBy)
                 .WithMany()
                 .HasForeignKey(o => o.RegisteredById)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<StatusHistory>(e =>
+        {
+            e.ToTable("status_history");
+            e.HasKey(h => h.Id);
+            e.Property(h => h.Id).HasColumnName("id").HasDefaultValueSql("gen_random_uuid()");
+            e.Property(h => h.PickupRequestId).HasColumnName("solicitacao_id").IsRequired();
+            e.HasIndex(h => h.PickupRequestId);
+            e.Property(h => h.FromStatus).HasColumnName("status_anterior").HasMaxLength(50);
+            e.Property(h => h.ToStatus).HasColumnName("status_novo").HasMaxLength(50).IsRequired();
+            e.Property(h => h.ChangedAt).HasColumnName("alterado_em").IsRequired();
+            e.HasIndex(h => h.ChangedAt);
+            e.Property(h => h.ChangedById).HasColumnName("alterado_por_id").IsRequired();
+            e.Property(h => h.ChangedByNameSnapshot).HasColumnName("alterado_por_nome").HasMaxLength(255).IsRequired();
+
+            e.HasOne(h => h.PickupRequest)
+                .WithMany(r => r.StatusHistories)
+                .HasForeignKey(h => h.PickupRequestId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }
