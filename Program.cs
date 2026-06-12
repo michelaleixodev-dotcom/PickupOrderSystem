@@ -52,7 +52,8 @@ builder.Services
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("Colaborador", policy => policy.RequireRole("Colaborador"))
     .AddPolicy("Cliente", policy => policy.RequireRole("Cliente"))
-    .AddPolicy("Motorista", policy => policy.RequireRole("Motorista"));
+    .AddPolicy("Motorista", policy => policy.RequireRole("Motorista"))
+    .AddPolicy("ColaboradorOuCliente", policy => policy.RequireRole("Colaborador", "Cliente"));
 
 builder.Services.AddCors(options =>
     options.AddPolicy("ReactDev", policy =>

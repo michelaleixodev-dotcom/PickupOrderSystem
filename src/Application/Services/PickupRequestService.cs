@@ -13,17 +13,23 @@ public class PickupRequestService(
     IVehicleRepository vehicleRepo,
     IUnitOfWork unitOfWork) : IPickupRequestService
 {
-    public async Task<IReadOnlyList<PickupRequestDto>> GetListAsync(Guid? userId)
+    public async Task<PagedResult<PickupRequestDto>> GetListAsync(Guid? userId, string? status = null, string? clientName = null, DateOnly? from = null, DateOnly? to = null, int page = 1, int pageSize = 10)
     {
-        var requests = await pickupRequestRepo.GetAllAsync(userId);
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 50);
 
-        return requests
+        var total = await pickupRequestRepo.CountAsync(userId, status, clientName, from, to);
+        var requests = await pickupRequestRepo.GetAllAsync(userId, status, clientName, from, to, page, pageSize);
+
+        var items = requests
             .Select(r => new PickupRequestDto(
                 r.Id, r.IdentificationNumber, r.User.Name,
                 r.Sender, r.PickupAddress, r.Recipient, r.DeliveryAddress,
                 r.RequestDate, r.ScheduledPickupDate,
                 r.Priority.ToString(), r.Status.ToString(), r.Notes, null, null, null))
             .ToList();
+
+        return new PagedResult<PickupRequestDto>(items, page, pageSize, total, (int)Math.Ceiling((double)total / pageSize));
     }
 
     public async Task<PickupRequestDto> GetByIdAsync(Guid id, Guid requestingUserId, string role)
@@ -234,8 +240,9 @@ public class PickupRequestService(
         var r = await pickupRequestRepo.GetByIdAsync(id)
             ?? throw new NotFoundException();
 
-        if (r.Status != PickupRequestStatus.EmColeta)
-            throw new BusinessRuleException("Apenas pedidos Em Coleta podem registrar falha.");
+        var failableStatuses = new[] { PickupRequestStatus.EmColeta, PickupRequestStatus.Coletado, PickupRequestStatus.ACaminho };
+        if (!failableStatuses.Contains(r.Status))
+            throw new BusinessRuleException("Falha só pode ser registrada nos status Em Coleta, Coletado ou A Caminho.");
 
         var now = DateTime.UtcNow;
 

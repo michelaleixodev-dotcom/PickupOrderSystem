@@ -4,7 +4,7 @@ namespace PickupOrderSystem.Application.Interfaces;
 
 public interface IPickupRequestService
 {
-    Task<IReadOnlyList<PickupRequestDto>> GetListAsync(Guid? userId);
+    Task<PagedResult<PickupRequestDto>> GetListAsync(Guid? userId, string? status = null, string? clientName = null, DateOnly? from = null, DateOnly? to = null, int page = 1, int pageSize = 10);
     Task<PickupRequestDto> GetByIdAsync(Guid id, Guid requestingUserId, string role);
     Task<(Guid Id, string IdentificationNumber)> CreateAsync(CreatePickupRequestRequest body, Guid userId, string userName);
     Task UpdateStatusAsync(Guid id, string status, Guid userId, string userName);

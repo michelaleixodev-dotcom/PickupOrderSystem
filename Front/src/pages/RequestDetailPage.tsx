@@ -31,11 +31,17 @@ const STATUS_ACTIONS: Record<string, StatusAction> = {
   },
   Coletado: {
     question: 'O motorista está a caminho da entrega?',
-    advance: [{ label: 'Confirmar saída para entrega', status: 'ACaminho' }],
+    advance: [
+      { label: 'Confirmar saída para entrega', status: 'ACaminho' },
+      { label: 'Registrar falha', status: 'FalhaNaColeta', variant: 'warning', modal: 'fail' },
+    ],
   },
   ACaminho: {
     question: 'A entrega foi realizada?',
-    advance: [{ label: 'Confirmar entrega realizada', status: 'Concluida' }],
+    advance: [
+      { label: 'Confirmar entrega realizada', status: 'Concluida' },
+      { label: 'Registrar falha', status: 'FalhaNaColeta', variant: 'warning', modal: 'fail' },
+    ],
   },
   FalhaNaColeta: {
     question: 'Deseja encaminhar para análise logística?',

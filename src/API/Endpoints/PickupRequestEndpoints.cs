@@ -10,12 +10,22 @@ public static class PickupRequestEndpoints
 {
     public static IEndpointRouteBuilder MapPickupRequestEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/pickup-requests", async (ClaimsPrincipal user, IPickupRequestService service) =>
+        app.MapGet("/pickup-requests", async (
+            ClaimsPrincipal user,
+            IPickupRequestService service,
+            string? status,
+            string? clientName,
+            DateOnly? from,
+            DateOnly? to,
+            int page = 1,
+            int pageSize = 10) =>
         {
             var userId = Guid.Parse(user.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
             var role = user.FindFirstValue(ClaimTypes.Role)!;
-            var items = await service.GetListAsync(role == "Cliente" ? userId : null);
-            return Results.Ok(items);
+            var result = await service.GetListAsync(
+                role == "Cliente" ? userId : null,
+                status, clientName, from, to, page, pageSize);
+            return Results.Ok(result);
         })
         .RequireAuthorization()
         .WithOpenApi();
@@ -46,7 +56,7 @@ public static class PickupRequestEndpoints
             }
             catch (BusinessRuleException ex) { return Results.BadRequest(ex.Message); }
         })
-        .RequireAuthorization()
+        .RequireAuthorization("ColaboradorOuCliente")
         .WithOpenApi();
 
         app.MapPatch("/pickup-requests/{id:guid}/status", async (Guid id, UpdateStatusRequest body, ClaimsPrincipal user, IPickupRequestService service) =>
