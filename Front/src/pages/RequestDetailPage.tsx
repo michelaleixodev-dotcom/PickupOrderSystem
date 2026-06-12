@@ -19,14 +19,28 @@ interface StatusAction {
 
 const STATUS_ACTIONS: Record<string, StatusAction> = {
   Atribuida: {
-    question: 'O motorista saiu para realizar a coleta?',
-    advance: [{ label: 'Confirmar início da coleta', status: 'EmAndamento' }],
+    question: 'O motorista chegou ao local de coleta?',
+    advance: [{ label: 'Confirmar chegada ao local', status: 'EmColeta' }],
   },
-  EmAndamento: {
-    question: 'Como foi a execução da coleta?',
+  EmColeta: {
+    question: 'A coleta foi realizada?',
+    advance: [
+      { label: 'Confirmar coleta realizada', status: 'Coletado' },
+      { label: 'Registrar falha na coleta', status: 'FalhaNaColeta', variant: 'warning', modal: 'fail' },
+    ],
+  },
+  Coletado: {
+    question: 'O motorista está a caminho da entrega?',
+    advance: [
+      { label: 'Confirmar saída para entrega', status: 'ACaminho' },
+      { label: 'Registrar falha', status: 'FalhaNaColeta', variant: 'warning', modal: 'fail' },
+    ],
+  },
+  ACaminho: {
+    question: 'A entrega foi realizada?',
     advance: [
       { label: 'Confirmar entrega realizada', status: 'Concluida' },
-      { label: 'Registrar falha na coleta', status: 'FalhaNaColeta', variant: 'warning', modal: 'fail' },
+      { label: 'Registrar falha', status: 'FalhaNaColeta', variant: 'warning', modal: 'fail' },
     ],
   },
   FalhaNaColeta: {
@@ -39,11 +53,11 @@ const STATUS_ACTIONS: Record<string, StatusAction> = {
   },
 };
 
-const CANCELABLE = new Set(['Aberta', 'Atribuida', 'EmAndamento', 'FalhaNaColeta', 'AguardandoDecisao']);
+const CANCELABLE = new Set(['Aberta', 'Atribuida', 'EmColeta', 'Coletado', 'ACaminho', 'FalhaNaColeta', 'AguardandoDecisao']);
 
 const STATUS_LABELS: Record<string, string> = {
-  Aberta: 'Aberta', Atribuida: 'Atribuída', EmAndamento: 'Em Andamento',
-  Concluida: 'Concluída', FalhaNaColeta: 'Falha na Coleta',
+  Aberta: 'Aberta', Atribuida: 'Atribuída', EmColeta: 'Em Coleta',
+  Coletado: 'Coletado', ACaminho: 'A Caminho', Concluida: 'Concluída', FalhaNaColeta: 'Falha na Coleta',
   AguardandoDecisao: 'Aguardando Decisão', Cancelada: 'Cancelada',
 };
 

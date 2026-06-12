@@ -60,3 +60,15 @@ public record AssignRequest(Guid DriverId, Guid VehicleId);
 public record CreateOccurrenceRequest(string Type, string Description);
 
 public record RegisterFailureRequest(string Type, string Description);
+
+public record PagedResult<T>(
+    IReadOnlyList<T> Items,
+    int Page,
+    int PageSize,
+    int TotalItems,
+    int TotalPages
+);
+
+public record DriverDto(Guid Id, string Name);
+
+public record VehicleDto(Guid Id, string Model, string LicensePlate);

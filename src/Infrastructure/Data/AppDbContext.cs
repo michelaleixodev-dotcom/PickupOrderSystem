@@ -1,11 +1,14 @@
 using Microsoft.EntityFrameworkCore;
+using PickupOrderSystem.Application.Interfaces;
 using PickupOrderSystem.Domain.Entities;
 using PickupOrderSystem.Domain.Enums;
 
 namespace PickupOrderSystem.Infrastructure.Data;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options), IUnitOfWork
 {
+    Task IUnitOfWork.SaveChangesAsync() => base.SaveChangesAsync();
+
     public DbSet<User> Users => Set<User>();
     public DbSet<ClientProfile> ClientProfiles => Set<ClientProfile>();
     public DbSet<DriverProfile> DriverProfiles => Set<DriverProfile>();

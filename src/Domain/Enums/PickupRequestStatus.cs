@@ -4,7 +4,9 @@ public enum PickupRequestStatus
 {
     Aberta,
     Atribuida,
-    EmAndamento,
+    EmColeta,
+    Coletado,
+    ACaminho,
     Concluida,
     FalhaNaColeta,
     AguardandoDecisao,
