@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PickupOrderSystem")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5359419b890fc5f47702a82d5c6dee600addbf56")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+123bd3a767492be75360fd300a9bac89e7649fbc")]
 [assembly: System.Reflection.AssemblyProductAttribute("PickupOrderSystem")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PickupOrderSystem")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
