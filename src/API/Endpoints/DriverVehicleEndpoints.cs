@@ -12,6 +12,9 @@ public static class DriverVehicleEndpoints
             return Results.Ok(drivers);
         })
         .RequireAuthorization("Colaborador")
+        .WithTags("Motoristas e Veículos")
+        .WithSummary("Lista motoristas ativos")
+        .WithDescription("Retorna todos os motoristas com status ativo disponíveis para atribuição. Restrito a Colaboradores.")
         .WithOpenApi();
 
         app.MapGet("/vehicles", async (IDriverVehicleService service) =>
@@ -20,6 +23,9 @@ public static class DriverVehicleEndpoints
             return Results.Ok(vehicles);
         })
         .RequireAuthorization("Colaborador")
+        .WithTags("Motoristas e Veículos")
+        .WithSummary("Lista veículos ativos")
+        .WithDescription("Retorna todos os veículos com status ativo disponíveis para atribuição. Restrito a Colaboradores.")
         .WithOpenApi();
 
         return app;

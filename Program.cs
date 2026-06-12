@@ -8,11 +8,65 @@ using PickupOrderSystem.Application.Interfaces.Repositories;
 using PickupOrderSystem.Application.Services;
 using PickupOrderSystem.Infrastructure.Data;
 using PickupOrderSystem.Infrastructure.Repositories;
+using Serilog;
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .WriteTo.File(
+        path: "logs/app-.log",
+        rollingInterval: RollingInterval.Day,
+        outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Pickup Order System API",
+        Version = "v1",
+        Description = """
+            API de gerenciamento de solicitações de coleta e entrega.
+
+            **Usuários de teste disponíveis:**
+
+            | Perfil       | E-mail                              | Senha      |
+            |--------------|-------------------------------------|------------|
+            | Colaborador  | lucas.mendes@pickupsystem.com       | Senha@123  |
+            | Cliente      | contato@distribnoroeste.com.br      | Senha@123  |
+
+            Para autenticar: execute `POST /auth/login`, copie o `token` retornado e clique em **Authorize** (cadeado) inserindo `Bearer {token}`.
+            """
+    });
+
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Insira o token JWT obtido em POST /auth/login.\nExemplo: `Bearer eyJhbGci...`"
+    });
+
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -84,13 +138,5 @@ app.UseAuthorization();
 app.MapAuthEndpoints();
 app.MapPickupRequestEndpoints();
 app.MapDriverVehicleEndpoints();
-
-app.MapGet("/colaborador/ping", () => "Acesso permitido: Colaborador")
-    .RequireAuthorization("Colaborador")
-    .WithOpenApi();
-
-app.MapGet("/cliente/ping", () => "Acesso permitido: Cliente")
-    .RequireAuthorization("Cliente")
-    .WithOpenApi();
 
 app.Run();
